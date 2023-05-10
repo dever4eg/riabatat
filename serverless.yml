@@ -1,0 +1,17 @@
+service: riabatat
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+
+  stage: dev
+  region: eu-central-1
+
+functions:
+  hello:
+    handler: handler.hello
+   events:
+     - httpApi:
+         path: /users/create
+         method: get
