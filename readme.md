@@ -20,3 +20,4 @@ Riabatat
 Загалом час розробки проекту займе 8 місяців
 
 # Logo
+![Image alt](https://github.com/dever4eg/riabatat/raw/readme/logo.png)
