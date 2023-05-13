@@ -1,6 +1,8 @@
 service: riabatat
 frameworkVersion: '3'
 
+useDotenv: true
+
 provider:
   name: aws
   runtime: nodejs12.x
