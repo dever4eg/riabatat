@@ -8,10 +8,13 @@ provider:
   stage: dev
   region: eu-central-1
 
+plugins:
+  - serverless-offline
+
 functions:
   hello:
     handler: handler.hello
-   events:
+    events:
      - httpApi:
          path: /users/create
          method: get
