@@ -5,7 +5,7 @@ useDotenv: true
 
 provider:
   name: aws
-  runtime: nodejs12.x
+  runtime: nodejs18.x
 
   stage: dev
   region: eu-central-1
@@ -20,3 +20,27 @@ functions:
      - httpApi:
          path: /users/create
          method: get
+
+  telegram-webhook:
+    handler: backend/handlers/telegram-webhook.handler
+    events:
+     - httpApi:
+         path: /telegram-webhook
+         method: POST
+    environment:
+      TELEGRAM_TOKEN: ${env:TELEGRAM_TOKEN}
+
+  settings-update:
+    handler: backend/handlers/settings-api.update
+    events:
+     - httpApi:
+         path: /settings
+         method: PATCH
+
+  car-finder:
+    handler: backend/handlers/car-finder-scheduler.handler
+    events:
+     - schedule: rate(2 hours)
+    environment:
+      RIA_API_KEY: ${env:RIA_API_KEY}
+      TELEGRAM_TOKEN: ${env:TELEGRAM_TOKEN}
