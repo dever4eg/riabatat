@@ -31,3 +31,30 @@ serverless invoke local -f hello
 ```
 serverless invoke --function hello
 ```
+
+### Settings page - сторінка налаштування параметрів пошуку
+
+Для роботи, переходимо в папку settings-page
+
+```
+cd settings-page
+```
+
+Встановлюємо пакети
+
+```
+npm install
+```
+
+Для локальної розробки
+
+```
+npm run serve
+```
+
+Розгортання на aws
+
+```
+npm run build
+aws s3 sync dist s3://riabatat-dev-settings-page
+```
