@@ -19,7 +19,7 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
       Resource:
-        - "Fn::GetAtt": [usersTable, Arn]
+        - "Fn::GetAtt": [riabatatDevUsersTable, Arn]
 
   stage: dev
 
@@ -28,15 +28,15 @@ plugins:
 
 resources:
   Resources:
-    usersTable:
+    riabatatDevUsersTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: users
+        TableName: riabatat-dev-users-table
         AttributeDefinitions:
-          - AttributeName: userId
+          - AttributeName: id
             AttributeType: S
         KeySchema:
-          - AttributeName: userId
+          - AttributeName: id
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
