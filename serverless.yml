@@ -19,19 +19,22 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
       Resource:
-        - "Fn::GetAtt": [riabatatDevUsersTable, Arn]
+        - "Fn::GetAtt": [UsersTable, Arn]
 
   stage: dev
 
 plugins:
   - serverless-offline
 
+custom:
+  prefix: ${self:service}-${sls:stage}
+
 resources:
   Resources:
-    riabatatDevUsersTable:
+    UsersTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: riabatat-dev-users-table
+        TableName: ${self:custom.prefix}-users
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
@@ -41,6 +44,35 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
+
+    SettingsPageS3Bucket:
+      Type: 'AWS::S3::Bucket'
+      Properties:
+        BucketName: ${self:custom.prefix}-settings-page
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
+          BlockPublicPolicy: false
+          IgnorePublicAcls: true
+          RestrictPublicBuckets: false
+        WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: index.html
+
+    SettingsPageBucketPolicy:
+      Type: 'AWS::S3::BucketPolicy'
+      Properties:
+        Bucket: !Ref SettingsPageS3Bucket
+        PolicyDocument:
+          Statement:
+            - Sid: PublicReadForGetBucketObjects
+              Effect: Allow
+              Principal: '*'
+              Action: 's3:GetObject'
+              Resource: !Join 
+               - ''
+               - - 'arn:aws:s3:::'
+                 - !Ref SettingsPageS3Bucket
+                 - /*
 
 functions:
   hello:
