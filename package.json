@@ -13,6 +13,10 @@
   },
   "homepage": "https://github.com/dever4eg/riabatat#readme",
   "devDependencies": {
+    "@types/node-telegram-bot-api": "^0.61.6",
     "serverless-offline": "^12.0.4"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.332.0"
   }
 }
