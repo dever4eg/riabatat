@@ -3,7 +3,7 @@ const client = new DynamoDBClient({ region: 'eu-central-1' });
 const { randomUUID } = require('crypto');
 
 module.exports.handler = async (event) => {
-  
+
   try {
     const body = event.body;
       console.log('received telegram event', body);
