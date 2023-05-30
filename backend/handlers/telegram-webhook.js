@@ -35,11 +35,6 @@ module.exports.handler = async (event) => {
 
     const response = await client.send(command);
     
-    // Вывод имен пользователей
-    response.Items.forEach(function(item) {
-      console.log(item.id.S, item.firstname.S, item.lastname.S, item.username.S);
-    });
-    
     const isUserExist = response.Items.length > 0;
 
     // Создание записи только если пользователь не существует
