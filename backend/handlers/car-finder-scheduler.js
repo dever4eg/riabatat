@@ -5,10 +5,10 @@ const client = new DynamoDBClient({ region: 'eu-central-1' });
 
 module.exports.handler = async (event) => {
   try {
-    const brand = 'mazda'; 
+    const brand = 'mazda';
     const model = 'cx-5';
     const year = '2020';
-    const apiKey = process.env.RIA_API_KEY; 
+    const apiKey = process.env.RIA_API_KEY;
 
     // Запит до API Autoria
     const apiUrl = `https://api.auto.ria.com/brands/${brand}/models/${model}/years/${year}?api_key=${apiKey}`;
@@ -19,12 +19,12 @@ module.exports.handler = async (event) => {
         const data = JSON.parse(body);
         const results = data.map((car) => {
           return `Марка: ${car.brand}, Модель: ${car.model}, Рік випуску: ${car.year}`;
-        });        
-      
-        //функція відправки повідомлення в телеграм
-        function sendMassageTelegram(message, chatId, botToken) {
-          const telegramUrl = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${message}`;
-        
+        });
+
+        // Функція відправки повідомлення в Telegram
+        function sendMessageTelegram(message, chatId, botToken) {
+          const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+          
           const options = {
             url: telegramUrl,
             method: 'POST',
@@ -37,23 +37,24 @@ module.exports.handler = async (event) => {
 
           request(options, (error, response, body) => {
             if (!error && response.statusCode === 200) {
-              console.log('Сообщение отправленно!');
+              console.log('Повідомлення відправлено!');
             } else {
-              console.error('Сообщение не отправленно:', error);
+              console.error('Помилка при відправленні повідомлення:', error);
             }
           });
         }
       
-      //Використання функції для відправки повідомлення
-      const message = results.join('\n');
+        // Використання функції для відправки повідомлення
+        const message = results.join('\n');
+        const chatId = '';
+        const botToken = '';
+        sendMessageTelegram(message, chatId, botToken);
       
-
-
-
         return {
           statusCode: 200,
           body: JSON.stringify({
-            
+            message: 'Scheduler',
+            results: results,
           }),
         };
       } else {
