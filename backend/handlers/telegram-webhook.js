@@ -5,11 +5,11 @@ const { randomUUID } = require('crypto');
 module.exports.handler = async (event) => {
   
   try {
-    const uuid = randomUUID();
-    
     const body = event.body;
-
+      console.log('received telegram event', body);
+  
     if (!body) {
+      console.log('body is empty', body);
       return {
         statusCode: 200
       };
@@ -37,8 +37,13 @@ module.exports.handler = async (event) => {
     
     const isUserExist = response.Items.length > 0;
 
+    
+
     // Создание записи только если пользователь не существует
     if (!isUserExist) {
+        console.log('user not found, saving telegram user to db');
+      
+      const uuid = randomUUID();
       const putParams = {
         TableName: 'riabatat-dev-users',
         Item: {
@@ -53,13 +58,15 @@ module.exports.handler = async (event) => {
       
       const putCommand = new PutItemCommand(putParams);
       await client.send(putCommand);
+        
+        console.log('created user in db:', firstname, lastname, username);
     }
     
     return {
       statusCode: 200
     };
   } catch (error) {
-    console.error('Error:', error);
+    console.error('error during processing telegram event', error);
 
     return {
       statusCode: 200
