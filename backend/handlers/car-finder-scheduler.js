@@ -4,7 +4,7 @@ const request = require("request");
 
 const client = new DynamoDBClient({ region: 'eu-central-1' });
 
-module.exports.handler = async () => {
+module.exports.handler = async (event) => {
   try {
     // Получение списка пользователей из DynamoDB
     const scanCommand = new ScanCommand({ TableName: 'Users' });
