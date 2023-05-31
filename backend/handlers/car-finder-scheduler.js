@@ -1,10 +1,16 @@
-const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const axios = require("axios");
+const { DynamoDBClient, ScanCommand } = require("@aws-sdk/client-dynamodb");
 const request = require("request");
 
 const client = new DynamoDBClient({ region: 'eu-central-1' });
 
-module.exports.handler = async (event) => {
+module.exports.handler = async () => {
   try {
+    // Получение списка пользователей из DynamoDB
+    const scanCommand = new ScanCommand({ TableName: 'Users' });
+    const scanResult = await client.send(scanCommand);
+    const users = scanResult.Items.map(item => item.username.S);
+
     const brand = 'mazda';
     const model = 'cx-5';
     const year = '2020';
@@ -14,9 +20,9 @@ module.exports.handler = async (event) => {
     const apiUrl = `https://api.auto.ria.com/brands/${brand}/models/${model}/years/${year}?api_key=${apiKey}`;
 
     // Виконання запиту до API Autoria
-    request(apiUrl, (error, response, body) => {
-      if (!error && response.statusCode === 200) {
-        const data = JSON.parse(body);
+    axios.get(apiUrl)
+      .then(response => {
+        const data = response.data;
         const results = data.map((car) => {
           return `Марка: ${car.brand}, Модель: ${car.model}, Рік випуску: ${car.year}`;
         });
@@ -46,18 +52,20 @@ module.exports.handler = async (event) => {
       
         // Використання функції для відправки повідомлення
         const message = results.join('\n');
-        const chatId = '';
-        const botToken = '';
-        sendMessageTelegram(message, chatId, botToken);
+        const chatId = '513983141';
+        const telegramApiKey = process.env.TELEGRAM_TOKEN;
+        sendMessageTelegram(message, chatId, telegramApiKey);
       
         return {
           statusCode: 200,
           body: JSON.stringify({
             message: 'Scheduler',
             results: results,
+            users: users,
           }),
         };
-      } else {
+      })
+      .catch(error => {
         console.error('Помилка при отриманні даних з API Autoria:', error);
         return {
           statusCode: 500,
@@ -65,15 +73,16 @@ module.exports.handler = async (event) => {
             message: 'Виникла помилка при отриманні даних',
           }),
         };
-      }
-    });
+      });
   } catch (error) {
     console.error('Сталася помилка:', error);
     return {
       statusCode: 500,
       body: JSON.stringify({
-        message: 'Виникла помилка',
-      }),
-    };
+          message: 'Сталася помилка',		
+        }
+      ),	
+    }	
   }
 };
+       
