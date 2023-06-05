@@ -6,7 +6,7 @@ module.exports.handler = async (event) => {
 
   try {
     const body = event.body;
-      console.log('received telegram event', body);
+    console.log('received telegram event', body);
   
     if (!body) {
       console.log('body is empty', body);
@@ -39,7 +39,7 @@ module.exports.handler = async (event) => {
 
     // Создание записи только если пользователь не существует
     if (!isUserExist) {
-        console.log('user not found, saving telegram user to db');
+      console.log('user not found, saving telegram user to db');
       
       const uuid = randomUUID();
       const putParams = {
@@ -57,7 +57,7 @@ module.exports.handler = async (event) => {
       const putCommand = new PutItemCommand(putParams);
       await client.send(putCommand);
         
-        console.log('created user in db:', firstname, lastname, username);
+      console.log('created user in db:', firstname, lastname, username);
     }
     
     return {
