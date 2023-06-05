@@ -23,7 +23,7 @@ module.exports.handler = async (event) => {
     const lastname = chat ? chat.last_name || '' : '';
     const username = chat ? chat.username || '' : '';
 
-    // Проверка наличия пользователя в базе данных
+    // Checking the presence of the user in the database
     const command = new ScanCommand({
       FilterExpression: 'telegramChatId = :telegramChatId',
       ExpressionAttributeValues: {
@@ -37,7 +37,7 @@ module.exports.handler = async (event) => {
     
     const isUserExist = response.Items.length > 0;
 
-    // Создание записи только если пользователь не существует
+    // Creating a record only if the user does not exist
     if (!isUserExist) {
       console.log('user not found, saving telegram user to db');
       
