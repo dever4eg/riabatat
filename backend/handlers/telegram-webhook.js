@@ -19,9 +19,7 @@ module.exports.handler = async (event) => {
     
     const { chat } = message || {};
     const telegramChatId = chat ? chat.id : undefined;
-    const firstname = chat ? chat.first_name || '' : '';
-    const lastname = chat ? chat.last_name || '' : '';
-    const username = chat ? chat.username || '' : '';
+    
 
     // Checking the presence of the user in the database
     const command = new ScanCommand({
@@ -40,8 +38,17 @@ module.exports.handler = async (event) => {
     // Creating a record only if the user does not exist
     if (!isUserExist) {
       console.log('user not found, saving telegram user to db');
-      
+
       const uuid = randomUUID();
+      const firstname = chat ? chat.first_name || '' : '';
+      const lastname = chat ? chat.last_name || '' : '';
+      const username = chat ? chat.username || '' : '';
+      
+      console.log('uuid:', uuid);
+      console.log('firstname:', firstname);
+      console.log('lastname:', lastname);
+      console.log('username:', username);
+      
       const putParams = {
         TableName: 'riabatat-dev-users',
         Item: {
