@@ -38,7 +38,6 @@ module.exports.handler = async (event) => {
     const isUserExist = response.Items.length > 0;
 
     
-
     // Создание записи только если пользователь не существует
     if (!isUserExist) {
         console.log('user not found, saving telegram user to db');
