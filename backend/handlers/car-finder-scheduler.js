@@ -35,7 +35,7 @@ module.exports.handler = async (event) => {
       console.log(`Found ${results.length} cars for user with chatId ${chatId}`);
 
       //Відправка повідомлення в Telegram
-      function sendMessageTelegram(message, chatId, botToken) {
+      const sendMessageTelegram = (message, chatId, botToken) => {
         const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
 
         const options = {
@@ -58,13 +58,13 @@ module.exports.handler = async (event) => {
           .catch((error) => {
             console.error('Error sending message:', error); 
           });
-        }
-
-      // Виклик функції для відправки повідомлення
-      const message = results.join('\n');
-      const telegramApiKey = process.env.TELEGRAM_TOKEN;
-      sendMessageTelegram(message, chatId, telegramApiKey);
-    }
+      }
+      
+        // Виклик функції для відправки повідомлення
+        const message = results.join('\n');
+        const telegramApiKey = process.env.TELEGRAM_TOKEN;
+        sendMessageTelegram(message, chatId, telegramApiKey);
+      }
 
     console.log('Finding cars');
 
