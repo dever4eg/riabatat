@@ -47,7 +47,8 @@ module.exports.handler = async (event) => {
         Item: {
           id: { S: uuid },
           telegramChatId: { S: telegramChatId.toString() },
-          // Проверка наличия и присваивание параметров
+          
+          // Checking the presence and assignment of parameters
           ...(firstname && { firstname: { S: firstname } }),
           ...(lastname && { lastname: { S: lastname } }),
           ...(username && { username: { S: username } }),
