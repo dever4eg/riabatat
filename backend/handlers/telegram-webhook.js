@@ -18,16 +18,16 @@ module.exports.handler = async (event) => {
     const { message } = JSON.parse(body);
     
     const { chat } = message || {};
-    const chatId = chat ? chat.id : undefined;
+    const telegramChatId = chat ? chat.id : undefined;
     const firstname = chat ? chat.first_name || '' : '';
     const lastname = chat ? chat.last_name || '' : '';
     const username = chat ? chat.username || '' : '';
 
     // Проверка наличия пользователя в базе данных
     const command = new ScanCommand({
-      FilterExpression: 'chatId = :chatId',
+      FilterExpression: 'telegramChatId = :telegramChatId',
       ExpressionAttributeValues: {
-        ':chatId': { S: chatId.toString() },
+        ':telegramChatId': { S: telegramChatId.toString() },
       },
       ProjectionExpression: 'id, firstname, lastname, username',
       TableName: 'riabatat-dev-users'
@@ -46,7 +46,7 @@ module.exports.handler = async (event) => {
         TableName: 'riabatat-dev-users',
         Item: {
           id: { S: uuid },
-          chatId: { S: chatId.toString() },
+          telegramChatId: { S: telegramChatId.toString() },
           // Проверка наличия и присваивание параметров
           ...(firstname && { firstname: { S: firstname } }),
           ...(lastname && { lastname: { S: lastname } }),
