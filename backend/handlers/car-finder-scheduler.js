@@ -6,22 +6,22 @@ const client = new DynamoDBClient({ region: 'eu-central-1' });
 module.exports.handler = async (event) => {
   try {
     // Отримання списку користувачів з DynamoDB
-    const scanCommand = new ScanCommand({ TableName: 'Users' });
+    const scanCommand = new ScanCommand({ TableName: 'riabatat-dev-users' });
     const scanResult = await client.send(scanCommand);
     const users = scanResult.Items.map(item => ({
-      chatId: item.chatId.S,
-      searchSettings: item.searchSettings.S
+      telegramChatId: item.telegramChatId?.S,
+      searchSettings: item.searchSettings?.S
     }));
 
     console.log('Users:', users);
 
     // Перебір кожного користувача та виконання запиту до AutoRia
     for (const user of users) {
-      const { chatId, searchSettings } = user;
+      const { telegramChatId, searchSettings } = user;
       const { brand, model, year } = JSON.parse(searchSettings);
       const apiKey = process.env.RIA_API_KEY;
 
-      console.log(`Searching cars for user with chatId ${chatId}`);
+      console.log(`Searching cars for user with telegramChatId ${telegramChatId}`);
       console.log(`Search settings: brand=${brand}, model=${model}, year=${year}`);
 
       // Запит до API AutoRia
@@ -32,17 +32,17 @@ module.exports.handler = async (event) => {
         return `Марка: ${car.brand}, Модель: ${car.model}, Рік випуску: ${car.year}`;
       });
 
-      console.log(`Found ${results.length} cars for user with chatId ${chatId}`);
+      console.log(`Found ${results.length} cars for user with telegramChatId ${telegramChatId}`);
 
-      //Відправка повідомлення в Telegram
-      const sendMessageTelegram = (message, chatId, botToken) => {
+      // Відправка повідомлення в Telegram
+      const sendMessageTelegram = (message, telegramChatId, botToken) => {
         const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
 
         const options = {
           url: telegramUrl,
           method: 'POST',
           data: {
-            chat_id: chatId,
+            chat_id: telegramChatId,
             text: message,
           },
         };
@@ -58,13 +58,13 @@ module.exports.handler = async (event) => {
           .catch((error) => {
             console.error('Error sending message:', error); 
           });
-      }
-      
-        // Виклик функції для відправки повідомлення
-        const message = results.join('\n');
-        const telegramApiKey = process.env.TELEGRAM_TOKEN;
-        sendMessageTelegram(message, chatId, telegramApiKey);
-      }
+      };
+
+      // Виклик функції для відправки повідомлення
+      const message = results.join('\n');
+      const telegramApiKey = process.env.TELEGRAM_TOKEN;
+      sendMessageTelegram(message, telegramChatId, telegramApiKey);
+    }
 
     console.log('Finding cars');
 
