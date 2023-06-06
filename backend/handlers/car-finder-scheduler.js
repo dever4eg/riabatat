@@ -7,7 +7,7 @@ module.exports.handler = async (event) => {
   try {
     // Assuming you have the `id_оголошення` value
     const autoId = "32964882";
-    const apiKey = "";
+    const apiKey = "#";
     const url = `https://developers.ria.com/auto/info?api_key=${apiKey}&auto_id=${autoId}`;
 
     // Make a GET request to the API
