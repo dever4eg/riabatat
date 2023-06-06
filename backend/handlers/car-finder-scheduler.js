@@ -5,77 +5,20 @@ const client = new DynamoDBClient({ region: 'eu-central-1' });
 
 module.exports.handler = async (event) => {
   try {
-    // Отримання списку користувачів з DynamoDB
-    const scanCommand = new ScanCommand({ TableName: 'riabatat-dev-users' });
-    const scanResult = await client.send(scanCommand);
-    const users = scanResult.Items.map(item => ({
-      telegramChatId: item.telegramChatId?.S,
-      searchSettings: item.searchSettings?.S
-    }));
+    // Assuming you have the `id_оголошення` value
+    const autoId = "32964882";
+    const apiKey = "WXP0WnLl1OGpFIBFCwKmsZAHhwO2XJE5ePi5evDd";
+    const url = `https://developers.ria.com/auto/info?api_key=${apiKey}&auto_id=${autoId}`;
 
-    console.log('Users:', users);
+    // Make a GET request to the API
+    const response = await axios.get(url);
 
-    // Перебір кожного користувача та виконання запиту до AutoRia
-    for (const user of users) {
-      const { telegramChatId, searchSettings } = user;
-      const { brand, model, year } = JSON.parse(searchSettings);
-      const apiKey = process.env.RIA_API_KEY;
+    // Assuming the API response contains car details
+    const car = response.data;
 
-      console.log(`Searching cars for user with telegramChatId ${telegramChatId}`);
-      console.log(`Search settings: brand=${brand}, model=${model}, year=${year}`);
-
-      // Запит до API AutoRia
-      const apiUrl = `https://api.auto.ria.com/brands/${brand}/models/${model}/years/${year}?api_key=${apiKey}`;
-      const response = await axios.get(apiUrl);
-      const data = response.data;
-      const results = data.map((car) => {
-        return `Марка: ${car.brand}, Модель: ${car.model}, Рік випуску: ${car.year}`;
-      });
-
-      console.log(`Found ${results.length} cars for user with telegramChatId ${telegramChatId}`);
-
-      // Відправка повідомлення в Telegram
-      const sendMessageTelegram = (message, telegramChatId, botToken) => {
-        const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
-
-        const options = {
-          url: telegramUrl,
-          method: 'POST',
-          data: {
-            chat_id: telegramChatId,
-            text: message,
-          },
-        };
-
-        axios(options)
-          .then((response) => {
-            if (response.status === 200) {
-              console.log('Message sent successfully');
-            } else {
-              console.log('Error sending message');
-            }
-          })
-          .catch((error) => {
-            console.error('Error sending message:', error); 
-          });
-      };
-
-      // Виклик функції для відправки повідомлення
-      const message = results.join('\n');
-      const telegramApiKey = process.env.TELEGRAM_TOKEN;
-      sendMessageTelegram(message, telegramChatId, telegramApiKey);
-    }
-
-    console.log('Finding cars');
-
-    return { statusCode: 200 };
+    // Print the car details
+    console.log(car);
   } catch (error) {
-    console.error('Сталася помилка:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        message: 'Сталася помилка',		
-      }),
-    };
+    console.error("Error:", error);
   }
 };
