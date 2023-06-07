@@ -1,10 +1,34 @@
 const axios = require("axios");
 const { DynamoDBClient, ScanCommand } = require("@aws-sdk/client-dynamodb");
+const { inspect } = require('util');
 
 const client = new DynamoDBClient({ region: 'eu-central-1' });
 
 module.exports.handler = async (event) => {
   try {
+    // Получение telegramChatId из DynamoDB
+    const scanCommand = new ScanCommand({
+      TableName: 'riabatat-dev-users', 
+    });
+
+    const scanResult = await client.send(scanCommand);
+    console.log('scanResult:', scanResult.Items);
+    
+    const users = scanResult.Items.map(function(item) {
+      return { 
+        telegramChatId: item.telegramChatId.S,
+        lastname: item.lastname.S,
+        firstname: item.firstname.S,
+        username: item.username.S,
+        id: item.id.S
+      };
+    });
+
+    console.log('users:', users);
+    
+    const telegramChatId = scanResult.Items.map((item) => item.telegramChatId.S);
+    console.log('telegramChatId:', telegramChatId);
+
     // Assuming you have the `id_оголошення` value
     const markaId = "9";
     const modelId = "3219";
@@ -30,46 +54,23 @@ module.exports.handler = async (event) => {
     const cars = response.data;
 
     // Print the car details
-    console.log(cars);
-
-    // Fetch Telegram chat ID from DynamoDB
-    const chatId = await getTelegramChatIdFromDB(); // Replace with your own function to fetch chat ID from DynamoDB
+    console.log('cars object', cars);
 
     // Send found cars to Telegram chat
-    const telegramBotToken = process.env.TELEGRAM_BOT_TOKEN;
+    const telegramBotToken = process.env.TELEGRAM_TOKEN;
+    const telegramMessage = `Found cars:\n\n${inspect(cars, { depth: null })}`;
 
-    const telegramMessage = `Found cars:\n\n${JSON.stringify(cars, null, 2)}`;
-
-    await axios.post(
-      `https://api.telegram.org/bot${telegramBotToken}/sendMessage`,
-      {
+    for (const chatId of telegramChatId) {
+      await axios.post(`https://api.telegram.org/bot${telegramBotToken}/sendMessage`, {
         chat_id: chatId,
-        text: telegramMessage,
-      }
-    );
-
+        text: telegramMessage
+      });
+    }
   } catch (error) {
     console.log('Error:', error.message);
     if (error.response) {
       console.log('responseData,', error.response.data);
-      console.log('response status',error.response.status);
-    } 
+      console.log('response status', error.response.status);
+    }
   }
 };
-
-async function getTelegramChatIdFromDB() {
-  const dynamoDbParams = {
-    TableName: 'riabatat-dev-users', // Replace with your DynamoDB table name
-    Key: {
-      telegramChatId: { S: 'telegramChatId' }, // Replace with the primary key of the item that stores the chat ID
-    },
-  };
-
-  const command = new GetItemCommand(dynamoDbParams);
-  const data = await client.send(command);
-
-  // Extract the chat ID from the DynamoDB response
-  const chatId = data.Item?.chatId?.S;
-
-  return chatId;
-}
