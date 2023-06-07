@@ -32,8 +32,8 @@ module.exports.handler = async (event) => {
     // Assuming you have the `id_оголошення` value
     const markaId = "9";
     const modelId = "3219";
-    const sYers = "2010";
-    const poYers = "2016";
+    const sYers = "2022";
+    const poYers = "2023";
     const apiKey = process.env.RIA_API_KEY;
 
     // Build the API URL
@@ -49,25 +49,25 @@ module.exports.handler = async (event) => {
         'po_yers[0]': poYers
       },
     });
-
-    // Assuming the API response contains car details
-    const cars = response.data;
-
-    // Print the car details
-    console.log('cars object', cars);
+    
+    // Assuming the API response contains car details in a property called "cars"
+    const cars = response.data.result.search_result.ids;
+    console.log('cars:', cars);
 
     // Send found cars to Telegram chat
-    const telegramBotToken = process.env.TELEGRAM_TOKEN;
-    const telegramMessage = `Found cars:\n\n${inspect(cars, { depth: null })}`;
-
     for (const chatId of telegramChatId) {
-      await axios.post(`https://api.telegram.org/bot${telegramBotToken}/sendMessage`, {
-        chat_id: chatId,
-        text: telegramMessage
-      });
+      for (const id of cars) {
+        const carLink = `https://auto.ria.com/uk/auto___${id}.html`;
+        const telegramMessage = `Found car: ${carLink}`;
+
+        await axios.post(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage`, {
+          chat_id: chatId,
+          text: telegramMessage
+        });
+      }
     }
-  } catch (error) {
-    console.log('Error:', error.message);
+    } catch (error) {
+      console.log('Error:', error.message);
     if (error.response) {
       console.log('responseData,', error.response.data);
       console.log('response status', error.response.status);
