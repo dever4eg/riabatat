@@ -1,6 +1,5 @@
 const axios = require("axios");
 const { DynamoDBClient, ScanCommand } = require("@aws-sdk/client-dynamodb");
-const { inspect } = require('util');
 
 const client = new DynamoDBClient({ region: 'eu-central-1' });
 
@@ -32,8 +31,8 @@ module.exports.handler = async (event) => {
     // Assuming you have the `id_оголошення` value
     const markaId = "9";
     const modelId = "3219";
-    const sYers = "2022";
-    const poYers = "2023";
+    const sYers = "2014";
+    const poYers = "2014";
     const apiKey = process.env.RIA_API_KEY;
 
     // Build the API URL
