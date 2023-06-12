@@ -20,7 +20,7 @@ module.exports.handler = async (event) => {
         firstname: item.firstname.S,
         username: item.username.S,
         id: item.id.S,
-        autoriaIdsUser: item.autoriaIdsUser ? item.autoriaIdsUser.SS : []
+        autoriaIdsUser: item.autoriaIdsUser ? JSON.parse(item.autoriaIdsUser.S) : { lastScanIds: [] }
       };
     });
 
@@ -61,12 +61,12 @@ module.exports.handler = async (event) => {
     // Send found cars to Telegram chat
     for (const user of users) {
       const { telegramChatId, id: userId, autoriaIdsUser } = user;
-      
+      const updatedIds = [...autoriaIdsUser.lastScanIds]; // Создаем копию текущего списка
+
       for (const id of cars) {
         const carLink = `https://auto.ria.com/uk/auto___${id}.html`;
         
-
-        if (!autoriaIdsUser.includes(id)) {
+        if (!autoriaIdsUser.lastScanIds.includes(id)) {
           const telegramMessage = `Found car: ${carLink}`;
           
           await axios.post(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage`, {
@@ -74,20 +74,22 @@ module.exports.handler = async (event) => {
             text: telegramMessage
           }); 
 
-          //обновляем запись пользователя в dynamoDB, добавляя новую ссылку в список
-          const updateItemCommand = new UpdateItemCommand({
-            TableName: 'riabatat-dev-users',
-            Key: {
-              id: { S: userId },
-            },
-            UpdateExpression: "ADD autoriaIdsUser :id",
-            ExpressionAttributeValues: {
-              ":id": { SS: [id] }
-            }
-          });
-          await client.send(updateItemCommand);
+          updatedIds.push(id); // Добавляем новый id в список
         }
       }
+
+      // Обновляем запись пользователя в DynamoDB, включая обновленное поле autoriaIdsUser
+      const updateItemCommand = new UpdateItemCommand({
+        TableName: 'riabatat-dev-users',
+        Key: {
+          id: { S: userId },
+        },
+        UpdateExpression: "SET autoriaIdsUser = :autoriaIdsUserValue",
+        ExpressionAttributeValues: {
+          ":autoriaIdsUserValue": { S: JSON.stringify({ lastScanIds: updatedIds }) }
+        }
+      });
+      await client.send(updateItemCommand);
     }
   } catch (error) {
     console.log('Error:', error.message);
