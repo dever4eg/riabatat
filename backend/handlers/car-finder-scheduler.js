@@ -20,7 +20,7 @@ module.exports.handler = async (event) => {
         firstname: item.firstname.S,
         username: item.username.S,
         id: item.id.S,
-        autoriaIdsUser: item.autoriaIdsUser ? JSON.parse(item.autoriaIdsUser.S) : { lastScanIds: [] }
+        updateVehicleIdData: item.updateVehicleIdData ? JSON.parse(item.updateVehicleIdData.S) : { lastScanIds: [] }
       };
     });
 
@@ -60,13 +60,13 @@ module.exports.handler = async (event) => {
 
     // Send found cars to Telegram chat
     for (const user of users) {
-      const { telegramChatId, id: userId, autoriaIdsUser } = user;
-      const updatedIds = [...autoriaIdsUser.lastScanIds]; // Создаем копию текущего списка
+      const { telegramChatId, id: userId, updateVehicleIdData } = user;
+      const updatedIds = [...updateVehicleIdData.lastScanIds]; // Создаем копию текущего списка
 
       for (const id of cars) {
         const carLink = `https://auto.ria.com/uk/auto___${id}.html`;
         
-        if (!autoriaIdsUser.lastScanIds.includes(id)) {
+        if (!updateVehicleIdData.lastScanIds.includes(id)) {
           const telegramMessage = `Found car: ${carLink}`;
           
           await axios.post(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage`, {
@@ -84,9 +84,9 @@ module.exports.handler = async (event) => {
         Key: {
           id: { S: userId },
         },
-        UpdateExpression: "SET autoriaIdsUser = :autoriaIdsUserValue",
+        UpdateExpression: "SET updateVehicleIdData = :updateVehicleIdDataValue",
         ExpressionAttributeValues: {
-          ":autoriaIdsUserValue": { S: JSON.stringify({ lastScanIds: updatedIds }) }
+          ":updateVehicleIdDataValue": { S: JSON.stringify({ lastScanIds: updatedIds }) }
         }
       });
       await client.send(updateItemCommand);
