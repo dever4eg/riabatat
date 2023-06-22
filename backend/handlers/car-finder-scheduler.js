@@ -5,7 +5,7 @@ const client = new DynamoDBClient({ region: 'eu-central-1' });
 
 module.exports.handler = async (event) => {
   try {
-    // Получение telegramChatId из DynamoDB
+    // Getting telegramChatId from DynamoDB
     const scanCommand = new ScanCommand({
       TableName: 'riabatat-dev-users',
     });
@@ -74,11 +74,11 @@ module.exports.handler = async (event) => {
             text: telegramMessage
           }); 
 
-          updatedIds.push(id); // Добавляем новый id в список
+          updatedIds.push(id); // Add a new id to the list
         }
       }
 
-      // Обновляем запись пользователя в DynamoDB, включая обновленное поле autoriaIdsUser
+      // Update the user record in DynamoDB, including the updated authoriaIdsUser field
       const updateItemCommand = new UpdateItemCommand({
         TableName: 'riabatat-dev-users',
         Key: {
