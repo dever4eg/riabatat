@@ -5,7 +5,7 @@ const client = new DynamoDBClient({ region: 'eu-central-1' });
 
 module.exports.handler = async (event) => {
   try {
-    // Getting telegramChatId from DynamoDB
+    // Получение telegramChatId из DynamoDB
     const scanCommand = new ScanCommand({
       TableName: 'riabatat-dev-users',
     });
@@ -13,89 +13,96 @@ module.exports.handler = async (event) => {
     const scanResult = await client.send(scanCommand);
     console.log('scanResult:', scanResult.Items);
 
-    const users = scanResult.Items.map(function(item) {
+    const users = scanResult.Items.map(function (item) {
+      
+      const searchParams = item.searchParams ? item.searchParams : null;
       return {
         telegramChatId: item.telegramChatId.S,
         lastname: item.lastname.S,
         firstname: item.firstname.S,
         username: item.username.S,
         id: item.id.S,
-        updateVehicleIdData: item.updateVehicleIdData ? JSON.parse(item.updateVehicleIdData.S) : { lastScanIds: [] }
+        updateVehicleIdData: item.updateVehicleIdData ? JSON.parse(item.updateVehicleIdData.S) : { lastScanIds: [] },
+        searchParams: searchParams,
       };
     });
 
     console.log('users:', users);
 
     const telegramChatIds = scanResult.Items.map((item) => item.telegramChatId.S);
-    
+
     console.log('telegramChatIds:', telegramChatIds);
 
-    // Assuming you have the `id_оголошення` value
-    const markaId = "9";
-    const modelId = "3219";
-    const sYers = "2010";
-    const poYers = "2023";
-    
     const apiKey = process.env.RIA_API_KEY;
 
-    // Build the API URL
-    const url = `https://developers.ria.com/auto/search`;
-
-    // Make a GET request to the API
-    const response = await axios.get(url, {
-      params: {
-        api_key: apiKey,
-        'marka_id[0]': markaId,
-        'model_id[0]': modelId,
-        's_yers[0]': sYers,
-        'po_yers[0]': poYers,
-        'top': 9,
-      },
-    });
-
-    // Assuming the API response contains car details in a property called "cars"
-    const cars = response.data.result.search_result.ids;
-    
-    console.log('cars:', cars);
-
-    // Send found cars to Telegram chat
     for (const user of users) {
-      const { telegramChatId, id: userId, updateVehicleIdData } = user;
+      const { telegramChatId, id: userId, updateVehicleIdData, searchParams } = user;
+      console.log("user", user);
       const updatedIds = [...updateVehicleIdData.lastScanIds]; // Создаем копию текущего списка
+      console.log("updatedIds", updatedIds);
 
-      for (const id of cars) {
-        const carLink = `https://auto.ria.com/uk/auto___${id}.html`;
-        
-        if (!updateVehicleIdData.lastScanIds.includes(id)) {
-          const telegramMessage = `Found car: ${carLink}`;
-          
-          await axios.post(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage`, {
-            chat_id: telegramChatId,
-            text: telegramMessage
-          }); 
+      // Check if user has searchParams defined
+      if (searchParams) {
+        console.log('searchParams', searchParams);
+        const { categoryId, markaId, modelId, sYers, poYers, top, saledParam } = searchParams;
 
-          updatedIds.push(id); // Add a new id to the list
+        // Build the API URL with user-specific search parameters
+        const url = `https://developers.ria.com/auto/search`;
+
+        const response = await axios.get(url, {
+          params: {
+            api_key: apiKey,
+            'category_id[0]': categoryId,
+            'marka_id[0]': markaId,
+            'model_id[0]': modelId,
+            's_yers[0]': sYers,
+            'po_yers[0]': poYers,
+            'top': top,
+            'saledParam': saledParam,
+          },
+        });
+
+        // Assuming the API response contains car details in a property called "cars"
+        const cars = response.data.result.search_result.ids;
+        console.log('cars:', cars);
+
+        // Send found cars to Telegram chat
+        for (const id of cars) {
+          const carLink = `https://auto.ria.com/uk/auto___${id}.html`;
+
+          if (!updateVehicleIdData.lastScanIds.includes(id)) {
+            const telegramMessage = `Found car: ${carLink}`;
+            await axios.post(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage`, {
+              chat_id: telegramChatId,
+              text: telegramMessage,
+            });
+
+            updatedIds.push(id); // Add the new id to the list
+          }
         }
       }
 
-      // Update the user record in DynamoDB, including the updated authoriaIdsUser field
+      // Обновляем запись пользователя в DynamoDB, включая обновленное поле autoriaIdsUser
       const updateItemCommand = new UpdateItemCommand({
         TableName: 'riabatat-dev-users',
         Key: {
           id: { S: userId },
         },
-        UpdateExpression: "SET updateVehicleIdData = :updateVehicleIdDataValue",
+        UpdateExpression: 'SET updateVehicleIdData = :updateVehicleIdDataValue',
         ExpressionAttributeValues: {
-          ":updateVehicleIdDataValue": { S: JSON.stringify({ lastScanIds: updatedIds }) }
-        }
+          ':updateVehicleIdDataValue': { S: JSON.stringify({ lastScanIds: updatedIds }) },
+        },
       });
+
       await client.send(updateItemCommand);
     }
   } catch (error) {
     console.log('Error:', error.message);
+    console.log('ErrorStack:', error.stack);
     if (error.response) {
       console.log('responseData,', error.response.data);
       console.log('response status', error.response.status);
     }
+    throw error;
   }
 };
