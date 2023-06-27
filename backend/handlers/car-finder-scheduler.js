@@ -14,23 +14,42 @@ module.exports.handler = async (event) => {
     console.log('scanResult:', scanResult.Items);
 
     const users = scanResult.Items.map(function (item) {
-      
-      const searchParams = item.searchParams ? item.searchParams : null;
+      const {
+        searchParams: {
+          M: {
+            poYers: { S: poYers },
+            markaId: { S: markaId },
+            modelId: { S: modelId },
+            categoryId: { S: categoryId },
+            sYers: { S: sYers }
+          }
+        }
+      } = item;
+
+      const updateVehicleIdData = item.updateVehicleIdData
+    ? JSON.parse(item.updateVehicleIdData.S)
+    : { lastScanIds: [] }; // Initialize as an empty array if it's not present
+    
       return {
         telegramChatId: item.telegramChatId.S,
         lastname: item.lastname.S,
         firstname: item.firstname.S,
         username: item.username.S,
         id: item.id.S,
-        updateVehicleIdData: item.updateVehicleIdData ? JSON.parse(item.updateVehicleIdData.S) : { lastScanIds: [] },
-        searchParams: searchParams,
+        updateVehicleIdData,
+        searchParams: {
+          poYers,
+          markaId,
+          modelId,
+          categoryId,
+          sYers
+        }
       };
     });
-
+    
     console.log('users:', users);
 
     const telegramChatIds = scanResult.Items.map((item) => item.telegramChatId.S);
-
     console.log('telegramChatIds:', telegramChatIds);
 
     const apiKey = process.env.RIA_API_KEY;
@@ -38,6 +57,7 @@ module.exports.handler = async (event) => {
     for (const user of users) {
       const { telegramChatId, id: userId, updateVehicleIdData, searchParams } = user;
       console.log("user", user);
+      
       const updatedIds = [...updateVehicleIdData.lastScanIds]; // Создаем копию текущего списка
       console.log("updatedIds", updatedIds);
 
@@ -66,12 +86,18 @@ module.exports.handler = async (event) => {
         const cars = response.data.result.search_result.ids;
         console.log('cars:', cars);
 
+
         // Send found cars to Telegram chat
         for (const id of cars) {
+        console.log('id', id)
+
           const carLink = `https://auto.ria.com/uk/auto___${id}.html`;
+          console.log('carLink',carLink)
 
           if (!updateVehicleIdData.lastScanIds.includes(id)) {
             const telegramMessage = `Found car: ${carLink}`;
+            console.log('telegramMessage',telegramMessage)
+            
             await axios.post(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage`, {
               chat_id: telegramChatId,
               text: telegramMessage,
