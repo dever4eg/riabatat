@@ -89,15 +89,15 @@ module.exports.handler = async (event) => {
 
         // Send found cars to Telegram chat
         for (const id of cars) {
-        console.log('id', id)
+          console.log('id', id);
 
           const carLink = `https://auto.ria.com/uk/auto___${id}.html`;
-          console.log('carLink',carLink)
+          console.log('carLink', carLink);
 
           if (!updateVehicleIdData.lastScanIds.includes(id)) {
             const telegramMessage = `Found car: ${carLink}`;
-            console.log('telegramMessage',telegramMessage)
-            
+            console.log('telegramMessage', telegramMessage);
+
             await axios.post(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage`, {
               chat_id: telegramChatId,
               text: telegramMessage,
