@@ -78,7 +78,6 @@ module.exports.handler = async (event) => {
             's_yers[0]': sYers,
             'po_yers[0]': poYers,
             'top': top,
-            
           },
         });
 
