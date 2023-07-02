@@ -64,7 +64,7 @@ module.exports.handler = async (event) => {
       // Check if user has searchParams defined
       if (searchParams) {
         console.log('searchParams', searchParams);
-        const { categoryId, markaId, modelId, sYers, poYers, top, saledParam } = searchParams;
+        const { categoryId, markaId, modelId, sYers, poYers, top } = searchParams;
 
         // Build the API URL with user-specific search parameters
         const url = `https://developers.ria.com/auto/search`;
@@ -78,7 +78,7 @@ module.exports.handler = async (event) => {
             's_yers[0]': sYers,
             'po_yers[0]': poYers,
             'top': top,
-            'saledParam': saledParam,
+            
           },
         });
 
