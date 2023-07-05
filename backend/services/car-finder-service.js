@@ -7,7 +7,7 @@ module.exports.handler = async (event) => {
     const scanResult = await getUsers();
     console.log('scanResult:', scanResult);
 
-    const users = scanResult.map(function (item) {
+    const users = scanResult.map((item) => {
       const {
         searchParams: {
           M: {
@@ -15,29 +15,33 @@ module.exports.handler = async (event) => {
             markaId: { S: markaId },
             modelId: { S: modelId },
             categoryId: { S: categoryId },
-            sYers: { S: sYers }
-          }
-        }
+            sYers: { S: sYers },
+          },
+        },
+        telegramChatId: { S: telegramChatId },
+        lastname: { S: lastname },
+        firstname: { S: firstname },
+        username: { S: username },
+        id: { S: userId },
+        updateVehicleIdData: { S: updateVehicleIdDataStr },
       } = item;
 
-      const updateVehicleIdData = item.updateVehicleIdData
-        ? JSON.parse(item.updateVehicleIdData.S)
-        : { lastScanIds: [] };
+      const updateVehicleIdData = updateVehicleIdDataStr ? JSON.parse(updateVehicleIdDataStr) : { lastScanIds: [] };
 
       return {
-        telegramChatId: item.telegramChatId.S,
-        lastname: item.lastname.S,
-        firstname: item.firstname.S,
-        username: item.username.S,
-        id: item.id.S,
+        telegramChatId,
+        lastname,
+        firstname,
+        username,
+        userId,
         updateVehicleIdData,
         searchParams: {
           poYers,
           markaId,
           modelId,
           categoryId,
-          sYers
-        }
+          sYers,
+        },
       };
     });
 
@@ -49,8 +53,8 @@ module.exports.handler = async (event) => {
     const apiKey = process.env.RIA_API_KEY;
 
     for (const user of users) {
-      const { telegramChatId, id: userId, updateVehicleIdData, searchParams } = user;
-      console.log("user", user);
+      const { telegramChatId, userId, updateVehicleIdData, searchParams } = user;
+      console.log('user', user);
 
       const updatedIds = [];
 
