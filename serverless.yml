@@ -99,7 +99,7 @@ functions:
          method: PATCH
 
   car-finder:
-    handler: backend/handlers/car-finder-scheduler.handler
+    handler: backend/handlers/car-finder-scheduler-modules/car-finder-scheduler.handler
     events:
      - schedule: rate(24 hours)
     environment:
