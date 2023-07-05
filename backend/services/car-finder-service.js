@@ -1,10 +1,10 @@
-const { getScanResult, updateItem } = require('../repositories/account.repository');
+const { getUsers, createUser } = require('../repositories/account.repository');
 const { sendTelegramMessage } = require('../clients/telegram.client');
 const { getCarDetails } = require('../clients/auto-ria.client');
 
 module.exports.handler = async (event) => {
   try {
-    const scanResult = await getScanResult();
+    const scanResult = await getUsers();
     console.log('scanResult:', scanResult);
 
     const users = scanResult.map(function (item) {
@@ -81,7 +81,7 @@ module.exports.handler = async (event) => {
         }
       }
 
-      await updateItem(userId, updatedIds);
+      await createUser(userId, updatedIds);
     }
   } catch (error) {
     console.log('Error:', error.message);

@@ -2,7 +2,7 @@ const { DynamoDBClient, ScanCommand, UpdateItemCommand } = require("@aws-sdk/cli
 
 const client = new DynamoDBClient({ region: 'eu-central-1' });
 
-async function getScanResult() {
+async function getUsers() {
   const scanCommand = new ScanCommand({
     TableName: 'riabatat-dev-users',
   });
@@ -11,7 +11,7 @@ async function getScanResult() {
   return scanResult.Items;
 }
 
-async function updateItem(userId, updatedIds) {
+async function createUser(userId, updatedIds) {
   const updateItemCommand = new UpdateItemCommand({
     TableName: 'riabatat-dev-users',
     Key: {
@@ -27,6 +27,6 @@ async function updateItem(userId, updatedIds) {
 }
 
 module.exports = {
-  getScanResult,
-  updateItem
+  getUsers,
+  createUser
 };
