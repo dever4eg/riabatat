@@ -67,24 +67,25 @@ module.exports.handler = async (event) => {
         for (const id of cars) {
           console.log('id', id);
 
-          const carLink = `https://auto.ria.com/uk/auto___${id}.html`;
-          console.log('carLink', carLink);
+          if (id.length === 8) { 
+            const carLink = `https://auto.ria.com/uk/auto___${id}.html`;
+            console.log('carLink', carLink);
+          
+            if (!updateVehicleIdData.lastScanIds.includes(id)) {
+              const telegramMessage = `Found car: ${carLink}`;
+              console.log('telegramMessage', telegramMessage);
 
-          if (!updateVehicleIdData.lastScanIds.includes(id)) {
-            const telegramMessage = `Found car: ${carLink}`;
-            console.log('telegramMessage', telegramMessage);
+              await sendTelegramMessage(telegramChatId, process.env.TELEGRAM_TOKEN, telegramMessage);
 
-            await sendTelegramMessage(telegramChatId, process.env.TELEGRAM_TOKEN, telegramMessage);
+              updatedIds.push(id);
 
-            updatedIds.push(id);
-
-            if (updatedIds.length >= 10) {
-              break;
+              if (updatedIds.length >= 10) {
+                break;
+              }
             }
           }
         }
       }
-
       await createUser(userId, updatedIds);
     }
   } catch (error) {
