@@ -3,12 +3,12 @@
     <img alt="Vue logo" src="./assets/logo.png" />
     <HelloWorld msg="RIABATAT - телеграм-бот для пошуку автомобілей №1" />
 
-    <h2>Форма ввода</h2>
+    <h2>Форма вводу</h2>
   </div>
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
+import HelloWorld from "./components/formComponent.vue";
 
 export default {
   name: "App",
