@@ -1,8 +1,10 @@
 <template>
-  <dev>
+  <div id="app">
     <img alt="Vue logo" src="./assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
-  </dev>
+    <HelloWorld msg="RIABATAT - телеграм-бот для пошуку автомобілей №1" />
+
+    <h2>Форма ввода</h2>
+  </div>
 </template>
 
 <script>
