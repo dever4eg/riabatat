@@ -35,23 +35,28 @@
           </div>
           <label for="marka">Марка автомобіля:</label>
           <div class="flex flex-col">
-            <input
-              type="text"
+            <select
+              name="text"
               id="marka"
               v-model="searchMarka"
-              placeholder="mazda"
-              required
               class="border rounded px-3 py-2"
-            />
+            >
+              <option value="">Выберите марку</option>
+              <option
+                v-for="brand in carBrands"
+                :value="brand.value"
+                :key="brand.value"
+              >
+                {{ brand.name }}
+              </option>
+            </select>
           </div>
           <label for="model">Марка автомобіля:</label>
           <div class="flex flex-col">
-            <input
+            <select
               type="text"
               id="model"
               v-model="searchModel"
-              placeholder="cx7"
-              required
               class="border rounded px-3 py-2"
             />
           </div>
@@ -70,10 +75,17 @@
 </template>
 
 <script>
+import carBrands from "./car-list";
+
 export default {
-  name: "HelloWorld",
-  props: {
-    msg: String,
+  data() {
+    const sortedCarBrands = carBrands.sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+
+    return {
+      carBrands: sortedCarBrands,
+    };
   },
 };
 </script>
