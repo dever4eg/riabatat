@@ -51,7 +51,7 @@
               </option>
             </select>
           </div>
-          <label for="model">Марка автомобіля:</label>
+          <label for="model">Модель автомобіля:</label>
           <div class="flex flex-col">
             <select
               type="text"
