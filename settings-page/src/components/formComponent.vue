@@ -33,6 +33,7 @@
               class="border rounded px-3 py-2"
             />
           </div>
+
           <label for="marka">Марка автомобіля:</label>
           <div class="flex flex-col">
             <select
@@ -51,14 +52,24 @@
               </option>
             </select>
           </div>
+
           <label for="model">Модель автомобіля:</label>
           <div class="flex flex-col">
             <select
-              type="text"
               id="model"
-              v-model="searchModel"
+              name="text"
+              v-model="selectedModel"
               class="border rounded px-3 py-2"
-            />
+            >
+              <option value="">Выберите модель</option>
+              <option
+                v-for="model in filteredModels"
+                :value="model.value"
+                :key="model.value"
+              >
+                {{ model.name }}
+              </option>
+            </select>
           </div>
         </div>
         <div class="grid grid-cols-2 gap-4 place-content-around h-12">
@@ -75,7 +86,7 @@
 </template>
 
 <script>
-import carBrands from "./car-list";
+import carBrands from "./cars-brands-list";
 
 export default {
   data() {
