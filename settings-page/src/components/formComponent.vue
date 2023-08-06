@@ -41,8 +41,9 @@
               id="marka"
               v-model="searchMarka"
               class="border rounded px-3 py-2"
+              @change="updateModels"
             >
-              <option value="">Выберите марку</option>
+              <option value="">Выберіть марку</option>
               <option
                 v-for="brand in carBrands"
                 :value="brand.value"
@@ -87,6 +88,7 @@
 
 <script>
 import carBrands from "./cars-brands-list";
+import carModels from "./car-models-list";
 
 export default {
   data() {
@@ -96,7 +98,22 @@ export default {
 
     return {
       carBrands: sortedCarBrands,
+      searchMarka: "",
+      selectedModel: "",
     };
+  },
+  computed: {
+    filteredModels() {
+      if (!this.searchMarka) {
+        return [];
+      }
+      return carModels.filter((model) => model.brand === this.searchMarka);
+    },
+  },
+  methods: {
+    updateModels() {
+      this.selectedModel = "";
+    },
   },
 };
 </script>
