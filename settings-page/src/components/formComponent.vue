@@ -36,20 +36,25 @@
 
           <label for="marka">Марка автомобіля:</label>
           <div class="flex flex-col">
+            <input
+              type="text"
+              v-model="searchMarka"
+              placeholder="Пошук марки"
+              class="border rounded px-3 py-2"
+            />
             <select
               name="text"
               id="marka"
-              v-model="searchMarka"
-              class="border rounded px-3 py-2"
-              @change="updateModels"
+              v-model="selectedMarka"
+              class="border rounded px-3 py-2 mt-2"
             >
               <option value="">Выберіть марку</option>
               <option
-                v-for="brand in carBrands"
-                :value="brand.value"
-                :key="brand.value"
+                v-for="marka in filteredCarBrands"
+                :value="marka.name"
+                :key="marka.value"
               >
-                {{ brand.name }}
+                {{ marka.name }}
               </option>
             </select>
           </div>
@@ -99,17 +104,31 @@ export default {
     return {
       carBrands: sortedCarBrands,
       searchMarka: "",
-      selectedModel: "",
+      selectedMarka: "",
     };
   },
   computed: {
-    filteredModels() {
+    filteredCarBrands() {
       if (!this.searchMarka) {
+        return this.carBrands;
+      }
+      const searchTerm = this.searchMarka.toLowerCase();
+      return this.carBrands.filter((marka) =>
+        marka.name.toLowerCase().includes(searchTerm)
+      );
+    },
+    filteredModels() {
+      if (!this.selectedMarka) {
         return [];
       }
-      return carModels.filter((model) => model.brand === this.searchMarka);
+      return carModels.filter((model) => model.marka === this.selectedMarka);
     },
   },
+
+  searchMarka() {
+    this.selectedMarka = "";
+  },
+
   methods: {
     updateModels() {
       this.selectedModel = "";
