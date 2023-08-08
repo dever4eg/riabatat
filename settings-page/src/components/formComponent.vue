@@ -13,25 +13,11 @@
         <div class="grid grid-cols-2 gap-4">
           <label for="fromYear">Рік випуску:</label>
           <div class="flex flex-col">
-            <input
-              type="text"
-              id="fromYear"
-              v-model="searchFromYear"
-              placeholder="з"
-              required
-              class="border rounded px-3 py-2"
-            />
+            <YearSelector v-model="searchFromYear" />
           </div>
           <label for="toYear"></label>
           <div class="flex flex-col">
-            <input
-              type="text"
-              id="toYear"
-              v-model="searchToYear"
-              placeholder="по"
-              required
-              class="border rounded px-3 py-2"
-            />
+            <YearSelector v-model="searchFromYear" />
           </div>
 
           <label for="marka">Марка автомобіля:</label>
@@ -94,8 +80,12 @@
 <script>
 import carBrands from "./cars-brands-list";
 import carModels from "./car-models-list";
+import YearSelector from "./YearSelector.vue";
 
 export default {
+  components: {
+    YearSelector,
+  },
   data() {
     const sortedCarBrands = carBrands.sort((a, b) =>
       a.name.localeCompare(b.name)
@@ -105,6 +95,8 @@ export default {
       carBrands: sortedCarBrands,
       searchMarka: "",
       selectedMarka: "",
+      selectedToYear: "",
+      selectedFromYear: "",
     };
   },
   computed: {
@@ -124,7 +116,6 @@ export default {
       return carModels.filter((model) => model.marka === this.selectedMarka);
     },
   },
-
   searchMarka() {
     this.selectedMarka = "";
   },
