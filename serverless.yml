@@ -99,9 +99,9 @@ functions:
          method: PATCH
 
   car-finder:
-    handler: backend/handlers/car-finder-scheduler.handler
+    handler: backend/services//car-finder-service.handler
     events:
-     - schedule: rate(2 hours)
+     - schedule: rate(24 hours)
     environment:
       RIA_API_KEY: ${env:RIA_API_KEY}
       TELEGRAM_TOKEN: ${env:TELEGRAM_TOKEN}
