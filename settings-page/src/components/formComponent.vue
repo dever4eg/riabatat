@@ -11,11 +11,11 @@
     >
       <form @submit.prevent="submitForm" class="col-span-2">
         <div class="grid grid-cols-2 gap-4">
-          <label for="fromYear">Рік випуску:</label>
+          <label for="fromYear">Рік випуску: з</label>
           <div class="flex flex-col">
             <YearSelector v-model="searchFromYear" />
           </div>
-          <label for="toYear"></label>
+          <label for="toYear">Рік випуску: по</label>
           <div class="flex flex-col">
             <YearSelector v-model="searchFromYear" />
           </div>

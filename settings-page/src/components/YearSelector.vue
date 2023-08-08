@@ -1,6 +1,6 @@
 <template>
   <select class="border rounded px-3 py-2">
-    <option value="">Выберите год</option>
+    <option value="">Виберіть рік</option>
     <option v-for="year in years" :value="year" :key="year">{{ year }}</option>
   </select>
 </template>
